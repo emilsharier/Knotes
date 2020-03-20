@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:knotes/components/models/DynamicTheme.dart';
+import 'package:knotes/components/models/SelectionProvider.dart';
 import 'package:knotes/components/repositories/database_creator.dart';
 import 'package:knotes/screens/home_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Provider.debugCheckInvalidValueType = null;
   await DatabaseCreator().initDatabase();
   runApp(
-    ChangeNotifierProvider<DynamicTheme>(
-      create: (context) => DynamicTheme(),
+    MultiProvider(
+      providers: [
+        Provider<DynamicTheme>(
+          create: (context) => DynamicTheme(),
+        ),
+        Provider<SelectionProvider>(
+          create: (context) => SelectionProvider(),
+        ),
+      ],
       child: MyApp(),
     ),
   );
@@ -17,6 +26,13 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   ThemeData darkThemeData = ThemeData(
+    cardTheme: CardTheme(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      color: Color.fromRGBO(30, 30, 30, 1.0),
+      elevation: 0.0,
+    ),
     accentColor: Colors.white,
     primaryColor: Colors.white,
     appBarTheme: AppBarTheme(
@@ -42,7 +58,6 @@ class MyApp extends StatelessWidget {
       focusColor: Color.fromRGBO(230, 230, 230, 0.5),
     ),
     brightness: Brightness.dark,
-    
   );
 
   ThemeData lightThemeData = ThemeData(
@@ -50,6 +65,9 @@ class MyApp extends StatelessWidget {
     brightness: Brightness.light,
     textSelectionColor: Color.fromRGBO(217, 217, 217, 1.0),
     cardTheme: CardTheme(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
       color: Color.fromRGBO(230, 230, 230, 1.0),
       elevation: 0.0,
     ),
@@ -85,7 +103,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Knotes',
       debugShowCheckedModeBanner: false,
-      themeMode: theme.getDarkMode(),
+//        themeMode: theme.getDarkMode(),
       theme: lightThemeData,
       darkTheme: darkThemeData,
       home: HomeScreen(),

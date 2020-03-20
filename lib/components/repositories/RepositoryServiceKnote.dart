@@ -4,6 +4,7 @@ import 'package:sqflite/sqflite.dart';
 
 class RepositoryServiceKnote {
   static Future<List<KnoteModel>> getAllKnotes() async {
+    print("I'm getting called!");
     final sql = '''select * from ${DatabaseCreator.knotes_table}''';
 
     final data = await db.rawQuery(sql);
@@ -15,6 +16,7 @@ class RepositoryServiceKnote {
       knote = KnoteModel.fromJSON(node);
       knotes.add(knote);
     }
+//    print(knotes[0].title);
     return knotes;
   }
 
@@ -121,15 +123,16 @@ class RepositoryServiceKnote {
     print("Success!");
   }
 
-  static Future<void> deleteKnote(KnoteModel knoteModel) async {
-    Batch _batch = db.batch();
-    final sql =
-        '''delete from ${DatabaseCreator.knotes_table} where ${DatabaseCreator.id} = ?''';
-    List<dynamic> params = [knoteModel.id];
+  static Future<int> deleteKnote(List<String> id) async {
+    String sql = "";
+    for (String index in id) {
+      sql =
+          '''delete from ${DatabaseCreator.knotes_table} where ${DatabaseCreator.id} = ?''';
+      List<dynamic> params = [index];
 
-    _batch.execute(sql, params);
-
-    await _batch.commit();
+      await db.rawDelete(sql, params).then((t) => print("Deleted $index"));
+    }
+    return 1;
   }
 
   static Future<int> knotesCount() async {

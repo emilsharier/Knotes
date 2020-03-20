@@ -28,7 +28,7 @@ class DatabaseCreator {
     batch.execute(todoSql);
     batch.execute(tempSql);
 
-    List<dynamic> res = await batch.commit();
+    await batch.commit();
   }
 
   Future<String> getDatabasePath(String name) async {

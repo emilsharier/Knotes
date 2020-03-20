@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_page_transition/flutter_page_transition.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:knotes/components/models/knote_model.dart';
 import 'package:knotes/components/repositories/RepositoryServiceKnote.dart';
 import 'package:knotes/components/repositories/theme_repository/textField_custom_theme.dart'
     as ct;
+
+import 'home_screen.dart';
 
 class NoteTakingScreen extends StatefulWidget {
   @override
@@ -13,6 +16,8 @@ class NoteTakingScreen extends StatefulWidget {
 class _NoteTakingScreenState extends State<NoteTakingScreen> {
   final _formState = GlobalKey<FormState>();
   FocusNode _contentFocus;
+  FocusNode _titleFocus;
+
   TextEditingController _titleController = new TextEditingController();
   TextEditingController _contentController = new TextEditingController();
 
@@ -24,9 +29,13 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
   void initState() {
     _initialise();
     _contentFocus = FocusNode();
+    _titleFocus = FocusNode();
     KeyboardVisibilityNotification().addNewListener(
       onChange: (bool visible) {
-        if (!visible) _contentFocus.unfocus();
+        if (!visible) {
+          _contentFocus.unfocus();
+          _titleFocus.unfocus();
+        }
       },
     );
     super.initState();
@@ -77,9 +86,9 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
               children: <Widget>[
                 TextField(
                   controller: _titleController,
+                  focusNode: _titleFocus,
                   cursorWidth: 3.0,
                   cursorColor: Colors.white,
-
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.all(15.0),
@@ -89,6 +98,7 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
                   ),
                   style: ct.title,
                   maxLines: null,
+                  autofocus: false,
                 ),
                 TextField(
                   controller: _contentController,
@@ -105,12 +115,16 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
                   ),
                   style: ct.content,
                   maxLines: null,
+                  autofocus: false,
                 ),
               ],
             ),
           ),
         ),
         floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.white,
+          elevation: 10.0,
+          heroTag: 'floating',
           onPressed: () async {
             var now = DateTime.now();
 
@@ -126,12 +140,18 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
             await RepositoryServiceKnote.addKnote(knoteModel);
             _titleController.clear();
             _contentController.clear();
-            Navigator.pop(context);
+            Navigator.push(
+              context,
+              PageTransition(
+                type: PageTransitionType.rippleRightUp,
+                duration: Duration(milliseconds: 350),
+                child: HomeScreen(),
+              ),
+            );
+//                Navigator.pop(context);
           },
-          backgroundColor: Colors.white,
-          splashColor: Colors.grey,
           child: Icon(
-            Icons.keyboard_arrow_down,
+            Icons.save,
             color: Colors.black,
           ),
         ),
