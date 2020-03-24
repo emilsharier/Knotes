@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:knotes/components/models/knote_model.dart';
 import 'package:knotes/components/repositories/RepositoryServiceKnote.dart';
 import 'package:knotes/components/repositories/theme_repository/textField_custom_theme.dart'
     as ct;
+import 'package:knotes/modelClasses/knote_model.dart';
 
 class SingleKnote extends StatefulWidget {
   KnoteModel knoteModel;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:knotes/components/models/knote_model.dart';
+import 'package:knotes/modelClasses/knote_model.dart';
 
 class KnotesListView extends StatefulWidget {
 

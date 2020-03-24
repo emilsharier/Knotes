@@ -1,7 +1,7 @@
 import 'package:drag_select_grid_view/drag_select_grid_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_page_transition/flutter_page_transition.dart';
-import 'package:knotes/components/models/knote_model.dart';
+import 'package:knotes/modelClasses/knote_model.dart';
 import 'package:knotes/screens/modules/single_knote.dart';
 
 class SelectableItem extends StatefulWidget {

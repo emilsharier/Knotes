@@ -4,12 +4,16 @@ import 'package:drag_select_grid_view/drag_select_grid_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_page_transition/flutter_page_transition.dart';
-import 'package:knotes/components/models/knote_model.dart';
+import 'package:knotes/components/providers/UserProvider.dart';
 import 'package:knotes/components/repositories/RepositoryServiceKnote.dart';
+import 'package:knotes/modelClasses/knote_model.dart';
+import 'package:knotes/screens/component/NoDataFlareAnimation.dart';
+import 'package:knotes/screens/component/ProfileBottomSheet.dart';
 import 'package:knotes/screens/component/SelectableItem.dart';
 import 'package:knotes/screens/component/SelectionAppBar.dart';
 import 'package:knotes/screens/home_screen.dart';
 import 'package:knotes/screens/modules/single_knote.dart';
+import 'package:provider/provider.dart';
 import 'dart:math' as math;
 
 import '../note_taking_screen.dart';
@@ -17,9 +21,7 @@ import '../note_taking_screen.dart';
 class KnotesGridView extends StatefulWidget {
   List<KnoteModel> snapshot;
 
-  var stream;
-
-  KnotesGridView(this.snapshot, this.stream);
+  KnotesGridView(this.snapshot);
 
   @override
   _KnotesGridViewState createState() => _KnotesGridViewState();
@@ -63,27 +65,25 @@ class _KnotesGridViewState extends State<KnotesGridView> {
     print(_selectedKnotes);
     return WillPopScope(
       onWillPop: () async {
-        return (
-        await showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text("Are you sure?"),
-              content: Text("Do you want to exit?"),
-              actions: <Widget>[
-                FlatButton(
-                  onPressed: () => exit(0),
-                  child: Text("Yes"),
-                ),
-                FlatButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text("No"),
-                ),
-              ],
-            );
-          }
-        )
-        ) ?? false;
+        return (await showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text("Are you sure?"),
+                    content: Text("Do you want to exit?"),
+                    actions: <Widget>[
+                      FlatButton(
+                        onPressed: () => exit(0),
+                        child: Text("Yes"),
+                      ),
+                      FlatButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text("No"),
+                      ),
+                    ],
+                  );
+                })) ??
+            false;
       },
       child: Scaffold(
         appBar: (_selectedKnotes.isNotEmpty)
@@ -93,69 +93,75 @@ class _KnotesGridViewState extends State<KnotesGridView> {
               )
             : AppBar(
                 automaticallyImplyLeading: false,
-                title: Text("Knotes"),
+                title: Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text("Knotes"),
+                ),
+                centerTitle: true,
                 actions: <Widget>[
                   IconButton(
                     icon: Icon(MaterialCommunityIcons.face),
                     onPressed: () {
-                      print("User profile");
+                      _profileTap();
                     },
                   ),
                 ],
               ),
-        body: DragSelectGridView(
-          physics: BouncingScrollPhysics(),
-          gridController: controller,
-          padding: EdgeInsets.all(8),
-          itemCount: widget.snapshot.length,
-          unselectOnWillPop: true,
-          itemBuilder: (context, index, selected) {
-            if (idSet.isNotEmpty) {
+        body: (widget.snapshot.length == 0)
+            ? NoDataFlareAnimation()
+            : DragSelectGridView(
+                physics: BouncingScrollPhysics(),
+                gridController: controller,
+                padding: EdgeInsets.all(8),
+                itemCount: widget.snapshot.length,
+                unselectOnWillPop: true,
+                itemBuilder: (context, index, selected) {
+                  if (idSet.isNotEmpty) {
 //            print("Selected IDs");
 //            print(_selectedKnotes);
-              return SelectableItem(
-                index: index,
-                color: (Theme.of(context).brightness == Brightness.dark)
-                    ? Colors.grey
-                    : Colors.grey,
-                selected: selected,
-                knoteModel: widget.snapshot[index],
-                controller: controller,
-              );
-            } else
-              return InkWell(
-                splashColor: Colors.transparent,
-                focusColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                hoverColor: Colors.transparent,
-                onTap: () {
+                    return SelectableItem(
+                      index: index,
+                      color: (Theme.of(context).brightness == Brightness.dark)
+                          ? Colors.grey
+                          : Colors.grey,
+                      selected: selected,
+                      knoteModel: widget.snapshot[index],
+                      controller: controller,
+                    );
+                  } else
+                    return InkWell(
+                      splashColor: Colors.transparent,
+                      focusColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      onTap: () {
 //                print("User tap");
-                  Navigator.push(
-                    context,
-                    PageTransition(
-                      type: PageTransitionType.slideInUp,
-                      child: SingleKnote(widget.snapshot[index]),
-                    ),
-                  );
+                        Navigator.push(
+                          context,
+                          PageTransition(
+                            type: PageTransitionType.slideInUp,
+                            child: SingleKnote(widget.snapshot[index]),
+                          ),
+                        );
+                      },
+                      child: SelectableItem(
+                        index: index,
+                        color: (Theme.of(context).brightness == Brightness.dark)
+                            ? Colors.grey
+                            : Colors.grey,
+                        selected: selected,
+                        knoteModel: widget.snapshot[index],
+                        controller: controller,
+                      ),
+                    );
                 },
-                child: SelectableItem(
-                  index: index,
-                  color: (Theme.of(context).brightness == Brightness.dark)
-                      ? Colors.grey
-                      : Colors.grey,
-                  selected: selected,
-                  knoteModel: widget.snapshot[index],
-                  controller: controller,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 0,
+                  mainAxisSpacing: 0,
+                  childAspectRatio: 0.8,
                 ),
-              );
-          },
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 0,
-            mainAxisSpacing: 0,
-            childAspectRatio: 0.8,
-          ),
-        ),
+              ),
         floatingActionButton: FloatingActionButton(
           child:
               (_selectedKnotes.isEmpty) ? Icon(Icons.add) : Icon(Icons.delete),
@@ -182,6 +188,21 @@ class _KnotesGridViewState extends State<KnotesGridView> {
                 ),
               );
           },
+        ),
+      ),
+    );
+  }
+
+  _profileTap() {
+    Navigator.push(
+      context,
+      PageTransition(
+        type: PageTransitionType.rippleRightDown,
+        curve: Curves.easeInOut,
+        duration: Duration(milliseconds: 400),
+        child: ChangeNotifierProvider(
+          create: (_) => UserProvider.instance(),
+          child: ProfileBottomSheet(),
         ),
       ),
     );

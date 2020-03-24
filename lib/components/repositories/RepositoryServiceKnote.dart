@@ -1,5 +1,5 @@
-import 'package:knotes/components/models/knote_model.dart';
 import 'package:knotes/components/repositories/database_creator.dart';
+import 'package:knotes/modelClasses/knote_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 class RepositoryServiceKnote {

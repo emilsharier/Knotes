@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_page_transition/flutter_page_transition.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
-import 'package:knotes/components/models/knote_model.dart';
 import 'package:knotes/components/repositories/RepositoryServiceKnote.dart';
 import 'package:knotes/components/repositories/theme_repository/textField_custom_theme.dart'
     as ct;
+
+    import 'package:flutter/services.dart';
+import 'package:knotes/modelClasses/knote_model.dart';
 
 import 'home_screen.dart';
 
@@ -37,7 +39,20 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
           _titleFocus.unfocus();
         }
       },
+      
     );
+    SystemChannels.lifecycle.setMessageHandler((String state) {
+      if (state.contains("paused") || state.contains("inactive")) {
+        _contentFocus.unfocus();
+        _titleFocus.unfocus();
+      }
+        
+      else {
+        _contentFocus.requestFocus();
+        _titleFocus.requestFocus();
+      }
+        
+    });
     super.initState();
   }
 
@@ -60,8 +75,8 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        title = _titleController.text;
-        content = _contentController.text;
+        title = (_titleController.text == null) ? "" : _titleController.text;
+        content = (_contentController.text == null) ? "" : _contentController.text;
 
         knoteModel = new KnoteModel("", title, content);
 
@@ -144,7 +159,7 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
               context,
               PageTransition(
                 type: PageTransitionType.rippleRightUp,
-                duration: Duration(milliseconds: 350),
+                duration: Duration(milliseconds: 400),
                 child: HomeScreen(),
               ),
             );

@@ -27,18 +27,18 @@ dependencies:
   path: ^1.6.4
   flutter_page_transition: ^0.1.6
   provider: ^4.0.3
-  back_button_interceptor: ^4.2.3
-  flutter_easyrefresh: ^2.0.9
-  flutter_staggered_animations: ^0.1.2
-  loading_more_list: ^1.0.5
-  concentric_transition: ^0.1.1
   intl: ^0.16.1
-  flutter_launcher_icons: ^0.7.4
   android_alarm_manager: ^0.4.5+5
   keyboard_visibility: ^0.5.6
   shared_preferences: ^0.5.6+3
   flutter_icons: ^1.0.0+1
   drag_select_grid_view: ^0.1.1
+  circular_profile_avatar: ^1.0.6
+  google_sign_in: ^4.2.0
+  firebase_auth: ^0.15.5+3
+  flutter_auth_buttons: ^0.7.0
+  flare_flutter: ^2.0.1
+  nice_button: ^0.1.7
 
 flutter_icons:
   android: true
@@ -62,8 +62,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #  - images/a_dot_burr.jpeg
+  assets:
+   - assets/flareAnimations/noDataLoader.flr
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
