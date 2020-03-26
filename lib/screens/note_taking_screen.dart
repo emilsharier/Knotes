@@ -5,7 +5,7 @@ import 'package:knotes/components/repositories/RepositoryServiceKnote.dart';
 import 'package:knotes/components/repositories/theme_repository/textField_custom_theme.dart'
     as ct;
 
-    import 'package:flutter/services.dart';
+import 'package:flutter/services.dart';
 import 'package:knotes/modelClasses/knote_model.dart';
 
 import 'home_screen.dart';
@@ -39,19 +39,15 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
           _titleFocus.unfocus();
         }
       },
-      
     );
     SystemChannels.lifecycle.setMessageHandler((String state) {
       if (state.contains("paused") || state.contains("inactive")) {
         _contentFocus.unfocus();
         _titleFocus.unfocus();
-      }
-        
-      else {
+      } else {
         _contentFocus.requestFocus();
         _titleFocus.requestFocus();
       }
-        
     });
     super.initState();
   }
@@ -76,9 +72,14 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
     return WillPopScope(
       onWillPop: () async {
         title = (_titleController.text == null) ? "" : _titleController.text;
-        content = (_contentController.text == null) ? "" : _contentController.text;
+        content =
+            (_contentController.text == null) ? "" : _contentController.text;
 
-        knoteModel = new KnoteModel("", title, content);
+        knoteModel = new KnoteModel(
+          id: "",
+          title: title,
+          content: content,
+        );
 
         RepositoryServiceKnote.addTempData(knoteModel);
         // Navigator.pop(context);
@@ -151,19 +152,23 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
               Navigator.pop(context);
               return;
             }
-            knoteModel = new KnoteModel(id, title, content);
+            knoteModel = new KnoteModel(
+              id: id,
+              title: title,
+              content: content,
+            );
             await RepositoryServiceKnote.addKnote(knoteModel);
             _titleController.clear();
             _contentController.clear();
-            Navigator.push(
-              context,
-              PageTransition(
-                type: PageTransitionType.rippleRightUp,
-                duration: Duration(milliseconds: 400),
-                child: HomeScreen(),
-              ),
-            );
-//                Navigator.pop(context);
+            // Navigator.push(
+            //   context,
+            //   PageTransition(
+            //     type: PageTransitionType.rippleRightUp,
+            //     duration: Duration(milliseconds: 400),
+            //     child: HomeScreen(),
+            //   ),
+            // );
+               Navigator.pop(context);
           },
           child: Icon(
             Icons.save,

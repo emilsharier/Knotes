@@ -3,4 +3,5 @@ enum LoginStatus {
   Authenticating,
   Authenticated,
   UnAuthenticated,
+  LoggingOut,
 }

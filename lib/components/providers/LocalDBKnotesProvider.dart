@@ -1,26 +1,59 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:knotes/components/repositories/database_creator.dart';
+import 'package:knotes/modelClasses/LocalDBKnotesModel.dart';
 import 'package:knotes/modelClasses/knote_model.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite/sqlite_api.dart';
 
-class RepositoryServiceKnote {
-  static Future<List<KnoteModel>> getAllKnotes() async {
-    print("I'm getting called!");
+class LocalDBKnotesProvider with ChangeNotifier {
+  LocalKnotesStatus _knotesStatus = LocalKnotesStatus.Unintialised;
+
+  List<KnoteModel> _knotes = List<KnoteModel>();
+  KnoteModel _singleKnote = KnoteModel();
+
+  KnoteModel _tempKnote = KnoteModel();
+
+  Firestore databaseReference = Firestore.instance;
+
+  LocalKnotesStatus get knoteStatus => _knotesStatus;
+  
+  List<KnoteModel> get knotes {
+    return [..._knotes];
+  }
+
+  KnoteModel get tempKnote => _tempKnote;
+
+  KnoteModel get singleKnote => _singleKnote;
+
+  Future<void> getAllKnotes() async {
+    _knotesStatus = LocalKnotesStatus.Initialising;
+    notifyListeners();
     final sql = '''select * from ${DatabaseCreator.knotes_table}''';
 
     final data = await db.rawQuery(sql);
 
     List<KnoteModel> knotes = List();
-    KnoteModel knote;
+    if (data.length == 0) {
+      _knotesStatus = LocalKnotesStatus.NoKnotesAvailable;
+      notifyListeners();
+    } else {
+      _knotesStatus = LocalKnotesStatus.KnotesAvailable;
+      notifyListeners();
 
-    for (final node in data) {
-      knote = KnoteModel.fromJSON(node);
-      knotes.add(knote);
+      KnoteModel knote;
+
+      for (final node in data) {
+        knote = KnoteModel.fromJSON(node);
+        knotes.add(knote);
+      }
+      _knotes = knotes;
     }
-//    print(knotes[0].title);
-    return knotes;
+    notifyListeners();
   }
 
-  static Future<KnoteModel> getKnote(String id) async {
+  Future<KnoteModel> getKnotesFromCloud() async {}
+
+  Future<void> getKnote(String id) async {
     final sql =
         '''select * from ${DatabaseCreator.knotes_table} where ${DatabaseCreator.id} == $id''';
 
@@ -28,10 +61,11 @@ class RepositoryServiceKnote {
 
     final knote = KnoteModel.fromJSON(data[0]);
 
-    return knote;
+    _singleKnote = knote;
+    notifyListeners();
   }
 
-  static Future<void> addTempData(KnoteModel knoteModel) async {
+  Future<void> addTempData(KnoteModel knoteModel) async {
     final sql = '''insert into ${DatabaseCreator.temp_table} (
       ${DatabaseCreator.title},
       ${DatabaseCreator.content}
@@ -49,10 +83,12 @@ class RepositoryServiceKnote {
     batch.execute(sql, params);
 
     await batch.commit();
-    print(params);
+
+    _tempKnote = knoteModel;
+    notifyListeners();
   }
 
-  static Future<KnoteModel> getTempData() async {
+  Future<void> getTempData() async {
     final sql = '''SELECT * FROM ${DatabaseCreator.temp_table}''';
 
     final data = await db.rawQuery(sql);
@@ -72,7 +108,7 @@ class RepositoryServiceKnote {
     return knoteModel;
   }
 
-  static Future<void> addKnote(KnoteModel knoteModel) async {
+  Future<void> addKnote(KnoteModel knoteModel) async {
     final sql = '''insert into ${DatabaseCreator.knotes_table} (
       '${DatabaseCreator.id}',
       '${DatabaseCreator.title}',
@@ -91,9 +127,12 @@ class RepositoryServiceKnote {
     batch.execute(sql2);
 
     await batch.commit();
+
+    _tempKnote = knoteModel;
+    notifyListeners();
   }
 
-  static Future<void> updateKnote(KnoteModel knoteModel) async {
+  Future<void> updateKnote(KnoteModel knoteModel) async {
     final sql =
         '''update ${DatabaseCreator.knotes_table} set ${DatabaseCreator.title} = ? and ${DatabaseCreator.content} = ? id = ?''';
 
@@ -106,7 +145,7 @@ class RepositoryServiceKnote {
     await db.rawUpdate(sql, params);
   }
 
-  static Future<void> updateTitleKnote(String id, String value) async {
+  Future<void> updateTitleKnote(String id, String value) async {
     final sql =
         '''update ${DatabaseCreator.knotes_table} set ${DatabaseCreator.title} = ? where id = ?''';
 
@@ -117,7 +156,7 @@ class RepositoryServiceKnote {
     print("Success!");
   }
 
-  static Future<void> updateContentKnote(String id, String value) async {
+  Future<void> updateContentKnote(String id, String value) async {
     final sql =
         '''update ${DatabaseCreator.knotes_table} set ${DatabaseCreator.content} = ? where id = ?''';
 
@@ -127,7 +166,7 @@ class RepositoryServiceKnote {
     print("Success!");
   }
 
-  static Future<int> deleteKnote(List<String> id) async {
+  Future<void> deleteKnote(List<String> id) async {
     String sql = "";
     for (String index in id) {
       sql =
@@ -136,15 +175,6 @@ class RepositoryServiceKnote {
 
       await db.rawDelete(sql, params).then((t) => print("Deleted $index"));
     }
-    return 1;
-  }
-
-  static Future<int> knotesCount() async {
-    final data = await db
-        .rawQuery('''select count(*) from ${DatabaseCreator.knotes_table}''');
-
-    int count = data[0].values.elementAt(0);
-
-    return count;
+    getAllKnotes();
   }
 }

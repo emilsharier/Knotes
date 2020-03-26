@@ -4,17 +4,17 @@ import 'package:drag_select_grid_view/drag_select_grid_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_page_transition/flutter_page_transition.dart';
+import 'package:knotes/components/providers/LocalDBKnotesProvider.dart';
 import 'package:knotes/components/providers/UserProvider.dart';
 import 'package:knotes/components/repositories/RepositoryServiceKnote.dart';
 import 'package:knotes/modelClasses/knote_model.dart';
 import 'package:knotes/screens/component/NoDataFlareAnimation.dart';
-import 'package:knotes/screens/component/ProfileBottomSheet.dart';
+import 'package:knotes/screens/component/ProfilePage.dart';
 import 'package:knotes/screens/component/SelectableItem.dart';
 import 'package:knotes/screens/component/SelectionAppBar.dart';
 import 'package:knotes/screens/home_screen.dart';
 import 'package:knotes/screens/modules/single_knote.dart';
 import 'package:provider/provider.dart';
-import 'dart:math' as math;
 
 import '../note_taking_screen.dart';
 
@@ -57,12 +57,15 @@ class _KnotesGridViewState extends State<KnotesGridView> {
 
   @override
   Widget build(BuildContext context) {
+    final _knoteProvider = Provider.of<LocalDBKnotesProvider>(context);
+
     _selectedKnotes.clear();
     idSet = controller.selection.selectedIndexes;
     for (int i in idSet) _selectedKnotes.add(_selectedIDs[i]);
 //    _selectedKnotes.remove(null);
-    print("Current selection ");
-    print(_selectedKnotes);
+    // print("Current selection ");
+    // print(_selectedKnotes);
+    print(idSet);
     return WillPopScope(
       onWillPop: () async {
         return (await showDialog(
@@ -117,8 +120,8 @@ class _KnotesGridViewState extends State<KnotesGridView> {
                 unselectOnWillPop: true,
                 itemBuilder: (context, index, selected) {
                   if (idSet.isNotEmpty) {
-//            print("Selected IDs");
-//            print(_selectedKnotes);
+                    // print("Selected IDs");
+                    // print(_selectedKnotes);
                     return SelectableItem(
                       index: index,
                       color: (Theme.of(context).brightness == Brightness.dark)
@@ -167,8 +170,7 @@ class _KnotesGridViewState extends State<KnotesGridView> {
               (_selectedKnotes.isEmpty) ? Icon(Icons.add) : Icon(Icons.delete),
           onPressed: () async {
             if (_selectedKnotes.isNotEmpty) {
-              await RepositoryServiceKnote.deleteKnote(_selectedKnotes)
-                  .then((t) {
+              await _knoteProvider.deleteKnote(_selectedKnotes).then((t) {
                 Navigator.push(
                   context,
                   PageTransition(
@@ -202,7 +204,7 @@ class _KnotesGridViewState extends State<KnotesGridView> {
         duration: Duration(milliseconds: 400),
         child: ChangeNotifierProvider(
           create: (_) => UserProvider.instance(),
-          child: ProfileBottomSheet(),
+          child: ProfilePage(),
         ),
       ),
     );

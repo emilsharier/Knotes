@@ -3,7 +3,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:knotes/components/providers/UserProvider.dart';
 import 'package:provider/provider.dart';
 
-class ProfileBottomSheetuserInfoBeforeLogin extends StatelessWidget {
+class ProfileMainCardBeforeLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _userProvider = Provider.of<UserProvider>(context);
@@ -29,7 +29,7 @@ class ProfileBottomSheetuserInfoBeforeLogin extends StatelessWidget {
               child: InkWell(
                 splashColor: Colors.grey,
                 onTap: () {
-                  print("Something");
+                  _userProvider.signInWithGoogle();
                 },
                 borderRadius: BorderRadius.circular(10.0),
                 child: Ink(
@@ -56,6 +56,7 @@ class ProfileBottomSheetuserInfoBeforeLogin extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: 'NexaBold',
                           color: Colors.black,
+                          fontSize: 18.0,
                         ),
                       ),
                     ],

@@ -4,7 +4,7 @@ class KnoteModel {
   String id, title, content;
   bool isSelected;
 
-  KnoteModel(this.id, this.title, this.content, {this.isSelected = false});
+  KnoteModel({this.id, this.title, this.content});
 
   KnoteModel.fromJSON(Map<String, dynamic> json) {
     this.id = json[DatabaseCreator.id];
