@@ -16,7 +16,7 @@ class LocalDBKnotesProvider with ChangeNotifier {
   Firestore databaseReference = Firestore.instance;
 
   LocalKnotesStatus get knoteStatus => _knotesStatus;
-  
+
   List<KnoteModel> get knotes {
     return [..._knotes];
   }
@@ -24,6 +24,10 @@ class LocalDBKnotesProvider with ChangeNotifier {
   KnoteModel get tempKnote => _tempKnote;
 
   KnoteModel get singleKnote => _singleKnote;
+
+  LocalDBKnotesProvider() {
+    getAllKnotes();
+  }
 
   Future<void> getAllKnotes() async {
     _knotesStatus = LocalKnotesStatus.Initialising;

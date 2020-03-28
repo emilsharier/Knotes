@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_page_transition/flutter_page_transition.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
+import 'package:knotes/components/providers/LocalDBKnotesProvider.dart';
 import 'package:knotes/components/repositories/RepositoryServiceKnote.dart';
 import 'package:knotes/components/repositories/theme_repository/textField_custom_theme.dart'
     as ct;
 
 import 'package:flutter/services.dart';
 import 'package:knotes/modelClasses/knote_model.dart';
+import 'package:provider/provider.dart';
 
 import 'home_screen.dart';
 
@@ -69,6 +71,7 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final _knotesProvider = Provider.of<LocalDBKnotesProvider>(context);
     return WillPopScope(
       onWillPop: () async {
         title = (_titleController.text == null) ? "" : _titleController.text;
@@ -157,7 +160,7 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
               title: title,
               content: content,
             );
-            await RepositoryServiceKnote.addKnote(knoteModel);
+            await _knotesProvider.addKnote(knoteModel);
             _titleController.clear();
             _contentController.clear();
             // Navigator.push(
@@ -168,7 +171,7 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
             //     child: HomeScreen(),
             //   ),
             // );
-               Navigator.pop(context);
+            Navigator.pop(context);
           },
           child: Icon(
             Icons.save,

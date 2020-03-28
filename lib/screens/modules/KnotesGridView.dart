@@ -171,14 +171,15 @@ class _KnotesGridViewState extends State<KnotesGridView> {
           onPressed: () async {
             if (_selectedKnotes.isNotEmpty) {
               await _knoteProvider.deleteKnote(_selectedKnotes).then((t) {
-                Navigator.push(
-                  context,
-                  PageTransition(
-                    type: PageTransitionType.rippleRightUp,
-                    duration: Duration(milliseconds: 350),
-                    child: HomeScreen(),
-                  ),
-                );
+                _selectedKnotes.clear();
+                // Navigator.push(
+                //   context,
+                //   PageTransition(
+                //     type: PageTransitionType.rippleRightUp,
+                //     duration: Duration(milliseconds: 350),
+                //     child: HomeScreen(),
+                //   ),
+                // );
               });
             } else
               Navigator.push(
