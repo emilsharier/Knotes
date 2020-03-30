@@ -172,6 +172,7 @@ class _KnotesGridViewState extends State<KnotesGridView> {
             if (_selectedKnotes.isNotEmpty) {
               await _knoteProvider.deleteKnote(_selectedKnotes).then((t) {
                 _selectedKnotes.clear();
+                setState(() {});
                 // Navigator.push(
                 //   context,
                 //   PageTransition(
@@ -203,10 +204,7 @@ class _KnotesGridViewState extends State<KnotesGridView> {
         type: PageTransitionType.rippleRightDown,
         curve: Curves.easeInOut,
         duration: Duration(milliseconds: 400),
-        child: ChangeNotifierProvider(
-          create: (_) => UserProvider.instance(),
-          child: ProfilePage(),
-        ),
+        child: ProfilePage(),
       ),
     );
   }

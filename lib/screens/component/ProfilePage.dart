@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:knotes/components/providers/LocalDBKnotesProvider.dart';
 import 'package:knotes/components/providers/UserProvider.dart';
 import 'package:knotes/modelClasses/LoginStatus.dart';
 import 'package:knotes/screens/component/ProfileMainCardAfterLogin.dart';
 import 'package:knotes/screens/component/ProfileMainCardBeforeLogin.dart';
 import 'package:knotes/screens/component/ProfileMainCardDuringLogOut.dart';
 import 'package:knotes/screens/component/ProfileMainCardDuringLogin.dart';
+import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -22,6 +24,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  bool _autoSync = false;
+
   @override
   void dispose() {
     super.dispose();
@@ -29,7 +33,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final _userProvider = Provider.of<UserProvider>(context);
+    final _userProvider = Provider.of<UserProvider>(context, listen: false);
+    // final _dbProvider = Provider.of<LocalDBKnotesProvider>(context);
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -63,7 +68,11 @@ class _ProfilePageState extends State<ProfilePage> {
           physics: ScrollPhysics(),
           shrinkWrap: true,
           children: <Widget>[
-            _getMainCard(_userProvider.loginStatus),
+            Consumer<UserProvider>(
+              builder: (context, _userProvider, child) {
+                return _getMainCard(_userProvider.loginStatus);
+              },
+            ),
             Divider(
               height: 100.0,
               color: Colors.white,
@@ -78,13 +87,38 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
                 child: Container(
                   padding: EdgeInsets.all(25.0),
-                  child: Text(
-                    "App info",
-                    style: TextStyle(
-                      fontFamily: 'NexaBold',
-                      color: Colors.white,
-                      fontSize: 20.0,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        "Auto Sync",
+                        style: TextStyle(
+                          fontFamily: 'NexaBold',
+                          color: Colors.white,
+                          fontSize: 20.0,
+                        ),
+                      ),
+                      // Consumer<LocalDBKnotesProvider>(
+                      //   builder: (context, _dbProvider, child) => SizedBox(
+                      //     height: 40.0,
+                      //     width: 125.0,
+                      //     child: LiteRollingSwitch(
+                      //       textSize: 16.0,
+                      //       textOn: 'Sync on',
+                      //       textOff: 'Sync off',
+                      //       value: true,
+                      //       // value: _dbProvider.autoSync,
+                      //       colorOff: Colors.redAccent,
+                      //       colorOn: Colors.green,
+                      //       iconOff: Icons.cloud_off,
+                      //       iconOn: Icons.cloud_done,
+                      //       onChanged: (v) {
+                      //         _dbProvider.toggle(v);
+                      //       },
+                      //     ),
+                      //   ),
+                      // ),
+                    ],
                   ),
                 ),
               ),

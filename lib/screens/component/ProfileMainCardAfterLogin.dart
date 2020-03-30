@@ -55,45 +55,6 @@ class _TempState extends State<Temp> {
             ),
           ],
         ),
-        SizedBox(
-          height: 10.0,
-        ),
-        Column(
-          children: <Widget>[
-            Text(
-              "Autosync",
-              style: TextStyle(
-                color: Colors.white,
-                fontFamily: 'NexaBold',
-                fontSize: 20.0,
-              ),
-            ),
-            SizedBox(
-              height: 10.0,
-            ),
-            FutureBuilder(
-                future: getValue(),
-                builder: (context, snapshot) {
-                  return SizedBox(
-                    width: 130.0,
-                    height: 50.0,
-                    child: LiteRollingSwitch(
-                      textSize: 16.0,
-                      textOn: 'Sync on',
-                      textOff: 'Sync off',
-                      value: (snapshot.data),
-                      colorOff: Colors.redAccent,
-                      colorOn: Colors.green,
-                      iconOff: Icons.cloud_off,
-                      iconOn: Icons.cloud_done,
-                      onChanged: (v) {
-                        toggleValue(v);
-                      },
-                    ),
-                  );
-                }),
-          ],
-        ),
       ],
     );
   }

@@ -1,12 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:knotes/components/repositories/database_creator.dart';
 import 'package:knotes/modelClasses/LocalDBKnotesModel.dart';
 import 'package:knotes/modelClasses/knote_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 class LocalDBKnotesProvider with ChangeNotifier {
   LocalKnotesStatus _knotesStatus = LocalKnotesStatus.Unintialised;
+
+  FirebaseUser _user;
+
+  bool _autoSync = false;
 
   List<KnoteModel> _knotes = List<KnoteModel>();
   KnoteModel _singleKnote = KnoteModel();
@@ -16,6 +22,7 @@ class LocalDBKnotesProvider with ChangeNotifier {
   Firestore databaseReference = Firestore.instance;
 
   LocalKnotesStatus get knoteStatus => _knotesStatus;
+  bool get autoSync => _autoSync;
 
   List<KnoteModel> get knotes {
     return [..._knotes];
@@ -27,6 +34,24 @@ class LocalDBKnotesProvider with ChangeNotifier {
 
   LocalDBKnotesProvider() {
     getAllKnotes();
+    getUserSettings();
+  }
+
+  Future<void> getUserSettings() async {
+    SharedPreferences _preferences = await SharedPreferences.getInstance();
+    if (_preferences.containsKey('autoSync')) {
+      print("Contains");
+      _autoSync = _preferences.getBool('autoSync');
+    } else {
+      _autoSync = false;
+      _preferences.setBool('autoSync', false);
+    }
+    notifyListeners();
+  }
+
+  toggle(bool value) {
+    _autoSync = value;
+    notifyListeners();
   }
 
   Future<void> getAllKnotes() async {

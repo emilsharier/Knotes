@@ -1,13 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:knotes/components/providers/LocalDBKnotesProvider.dart';
-import 'package:knotes/modelClasses/knote_model.dart';
 import 'package:knotes/screens/home_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'components/providers/DynamicTheme.dart';
-import 'components/providers/SelectionProvider.dart';
 import 'components/providers/UserProvider.dart';
 import 'components/repositories/database_creator.dart';
 
@@ -17,6 +12,7 @@ import 'components/repositories/theme_repository/GlobalThemeData.dart'
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Provider.debugCheckInvalidValueType = null;
+  await Firestore.instance.enablePersistence(true);
   await DatabaseCreator().initDatabase();
   runApp(
     MyApp(),
@@ -33,11 +29,11 @@ class MyApp extends StatelessWidget {
       darkTheme: globalThemeData.darkThemeData,
       home: MultiProvider(
         providers: [
-          ChangeNotifierProvider<UserProvider>(
-            create: (context) => UserProvider.instance(),
+          ChangeNotifierProvider.value(
+            value: UserProvider.instance(),
           ),
-          ChangeNotifierProvider<LocalDBKnotesProvider>(
-            create: (ctx) => LocalDBKnotesProvider(),
+          ChangeNotifierProvider.value(
+            value: LocalDBKnotesProvider(),
           ),
         ],
         child: HomeScreen(),
