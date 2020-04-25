@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:knotes/main.dart';
 import 'package:knotes/modelClasses/LoginStatus.dart';
 import 'package:knotes/modelClasses/knote_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,7 +33,6 @@ class UserProvider with ChangeNotifier {
       _loginStatus = LoginStatus.Authenticating;
       notifyListeners();
       await _internalSignInCall();
-      await getAutoSync();
       return true;
     } catch (e) {
       _loginStatus = LoginStatus.UnAuthenticated;
@@ -78,55 +78,7 @@ class UserProvider with ChangeNotifier {
       _loginStatus = LoginStatus.UnAuthenticated;
     } else {
       _user = user;
-      _autoSync = _autoSync;
       _loginStatus = LoginStatus.Authenticated;
-    }
-    notifyListeners();
-  }
-
-  Future<KnoteModel> grabUserKnotes() async {
-    _preference = await SharedPreferences.getInstance();
-    if (_loginStatus == LoginStatus.Authenticated) {
-      await databaseReference
-          .collection("knotes")
-          .document("users")
-          .collection(_user.email)
-          .document('knotes')
-          .collection("knotes")
-          .getDocuments()
-          .then((snapshot) {
-        return snapshot.documents;
-      });
-    } else
-      return null;
-  }
-
-  Future<void> getAutoSync() async {
-    if (_loginStatus == LoginStatus.Authenticated) {
-      await databaseReference
-          .collection("knotes")
-          .document("users")
-          .collection(_user.email)
-          .document('settings')
-          .get()
-          .then((snapshot) {
-        print(snapshot.data);
-        _autoSync = snapshot.data['autosync'];
-      });
-    }
-    notifyListeners();
-  }
-
-  Future<void> toggleAutoSync() async {
-    if (_loginStatus == LoginStatus.Authenticated) {
-      await databaseReference
-          .collection("knotes")
-          .document("users")
-          .collection(_user.email)
-          .document('settings')
-          .setData({'autosync': !_autoSync}).then((value) {
-        _autoSync = !_autoSync;
-      });
     }
     notifyListeners();
   }

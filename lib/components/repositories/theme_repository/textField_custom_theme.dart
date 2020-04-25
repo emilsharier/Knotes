@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 
-TextStyle title = TextStyle(
+TextStyle lightTitle = TextStyle(
+  fontFamily: 'NexaBold',
+  color: Colors.black,
+  // letterSpacing: 5.0,
+  fontWeight: FontWeight.bold,
+  fontSize: 60.0,
+);
+
+TextStyle darkTitle = TextStyle(
   fontFamily: 'NexaBold',
   color: Colors.white,
   // letterSpacing: 5.0,
@@ -8,7 +16,7 @@ TextStyle title = TextStyle(
   fontSize: 60.0,
 );
 
-TextStyle titleHint = TextStyle(
+TextStyle lightTitleHint = TextStyle(
   fontFamily: 'NexaBold',
   color: Colors.white38,
   // letterSpacing: 5.0,
@@ -16,7 +24,15 @@ TextStyle titleHint = TextStyle(
   fontSize: 60.0,
 );
 
-TextStyle contentHint = TextStyle(
+TextStyle darkTitleHint = TextStyle(
+  fontFamily: 'NexaBold',
+  color: Colors.black38,
+  // letterSpacing: 5.0,
+  fontWeight: FontWeight.bold,
+  fontSize: 60.0,
+);
+
+TextStyle lightContentHint = TextStyle(
   fontFamily: 'NexaLight',
   color: Colors.white38,
   letterSpacing: 1.0,
@@ -24,7 +40,22 @@ TextStyle contentHint = TextStyle(
   fontSize: 30.0,
 );
 
-TextStyle content = TextStyle(
+TextStyle darkContentHint = TextStyle(
+  fontFamily: 'NexaLight',
+  color: Colors.black38,
+  letterSpacing: 1.0,
+  fontWeight: FontWeight.bold,
+  fontSize: 30.0,
+);
+
+TextStyle lightContent = TextStyle(
+  fontFamily: 'NexaLight',
+  letterSpacing: 1.0,
+  color: Colors.black,
+  fontSize: 30.0,
+);
+
+TextStyle darkContent = TextStyle(
   fontFamily: 'NexaLight',
   letterSpacing: 1.0,
   color: Colors.white,

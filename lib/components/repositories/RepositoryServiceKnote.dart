@@ -20,6 +20,24 @@ class RepositoryServiceKnote {
     return knotes;
   }
 
+  static Future<int> starKnote(KnoteModel model) async {
+    int val = (model.isStarred == 1) ? 0 : 1;
+    final sql =
+        '''update ${DatabaseCreator.knotes_table} set ${DatabaseCreator.isStarred} = ? where ${DatabaseCreator.id} = ?''';
+    List<dynamic> params = [val, model.id];
+
+    return await db.rawUpdate(sql, params);
+  }
+
+  static Future<int> updateKnote(KnoteModel model) async {
+    final sql =
+        '''update ${DatabaseCreator.knotes_table} set ${DatabaseCreator.title} = ?, ${DatabaseCreator.content} = ? where ${DatabaseCreator.id} = ?''';
+
+    List<String> params = [model.title, model.content, model.id];
+
+    return await db.rawUpdate(sql, params);
+  }
+
   static Future<KnoteModel> getKnote(String id) async {
     final sql =
         '''select * from ${DatabaseCreator.knotes_table} where ${DatabaseCreator.id} == $id''';
@@ -76,13 +94,15 @@ class RepositoryServiceKnote {
     final sql = '''insert into ${DatabaseCreator.knotes_table} (
       '${DatabaseCreator.id}',
       '${DatabaseCreator.title}',
-      '${DatabaseCreator.content}'
+      '${DatabaseCreator.content}',
+      '${DatabaseCreator.isStarred}'
     ) 
-    values(?,?,?)''';
+    values(?,?,?,?)''';
     List<dynamic> params = [
       knoteModel.id,
       knoteModel.title,
-      knoteModel.content
+      knoteModel.content,
+      knoteModel.isStarred,
     ];
     final sql2 = '''DELETE FROM ${DatabaseCreator.temp_table}''';
 
@@ -91,19 +111,6 @@ class RepositoryServiceKnote {
     batch.execute(sql2);
 
     await batch.commit();
-  }
-
-  static Future<void> updateKnote(KnoteModel knoteModel) async {
-    final sql =
-        '''update ${DatabaseCreator.knotes_table} set ${DatabaseCreator.title} = ? and ${DatabaseCreator.content} = ? id = ?''';
-
-    List<dynamic> params = [
-      knoteModel.title,
-      knoteModel.content,
-      knoteModel.id
-    ];
-
-    await db.rawUpdate(sql, params);
   }
 
   static Future<void> updateTitleKnote(String id, String value) async {
@@ -127,16 +134,11 @@ class RepositoryServiceKnote {
     print("Success!");
   }
 
-  static Future<int> deleteKnote(List<String> id) async {
-    String sql = "";
-    for (String index in id) {
-      sql =
-          '''delete from ${DatabaseCreator.knotes_table} where ${DatabaseCreator.id} = ?''';
-      List<dynamic> params = [index];
+  static Future<int> deleteKnote(List<String> ids) async {
+    String sql =
+        'DELETE FROM ${DatabaseCreator.knotes_table} WHERE ${DatabaseCreator.id} IN (${ids.join(",")})';
 
-      await db.rawDelete(sql, params).then((t) => print("Deleted $index"));
-    }
-    return 1;
+    return await db.rawDelete(sql);
   }
 
   static Future<int> knotesCount() async {

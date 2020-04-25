@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_page_transition/flutter_page_transition.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:knotes/components/providers/LocalDBKnotesProvider.dart';
 import 'package:knotes/components/repositories/RepositoryServiceKnote.dart';
@@ -9,8 +8,6 @@ import 'package:knotes/components/repositories/theme_repository/textField_custom
 import 'package:flutter/services.dart';
 import 'package:knotes/modelClasses/knote_model.dart';
 import 'package:provider/provider.dart';
-
-import 'home_screen.dart';
 
 class NoteTakingScreen extends StatefulWidget {
   @override
@@ -27,7 +24,13 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
 
   String id, title, content;
 
+  bool _starKnote;
+
   KnoteModel knoteModel;
+
+  LocalDBKnotesProvider _knotesProvider;
+
+  Color color;
 
   @override
   void initState() {
@@ -55,7 +58,8 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
   }
 
   _initialise() async {
-    print("Initialisation is being done!");
+    // print("Initialisation is being done!");
+    _starKnote = false;
     knoteModel = await RepositoryServiceKnote.getTempData();
     setState(() {
       _titleController.text = knoteModel.title;
@@ -69,9 +73,16 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
     _contentFocus.dispose();
   }
 
+  inverseColor() {
+    return (color == Colors.white) ? Colors.black : Colors.white;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final _knotesProvider = Provider.of<LocalDBKnotesProvider>(context);
+    _knotesProvider = Provider.of<LocalDBKnotesProvider>(context);
+    color = (MediaQuery.of(context).platformBrightness == Brightness.dark)
+        ? Colors.black
+        : Colors.white;
     return WillPopScope(
       onWillPop: () async {
         title = (_titleController.text == null) ? "" : _titleController.text;
@@ -91,12 +102,22 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.black,
+          backgroundColor: color,
           iconTheme: IconThemeData(
-            color: Colors.white,
+            color: inverseColor(),
           ),
+          actions: <Widget>[
+            IconButton(
+              icon: (_starKnote) ? Icon(Icons.star) : Icon(Icons.star_border),
+              onPressed: () {
+                setState(() {
+                  _starKnote = !_starKnote;
+                });
+              },
+            ),
+          ],
         ),
-        backgroundColor: Colors.black,
+        backgroundColor: color,
         body: SingleChildScrollView(
           physics: BouncingScrollPhysics(),
           child: Form(
@@ -107,32 +128,38 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
                   controller: _titleController,
                   focusNode: _titleFocus,
                   cursorWidth: 3.0,
-                  cursorColor: Colors.white,
+                  cursorColor: inverseColor(),
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.all(15.0),
                     hintText: 'Title',
-                    hintStyle: ct.titleHint,
+                    hintStyle: (color == Colors.white)
+                        ? ct.darkTitleHint
+                        : ct.lightTitleHint,
                     focusedBorder: InputBorder.none,
                   ),
-                  style: ct.title,
+                  style: (color == Colors.white) ? ct.lightTitle : ct.darkTitle,
                   maxLines: null,
                   autofocus: false,
                 ),
                 TextField(
                   controller: _contentController,
                   focusNode: _contentFocus,
-                  cursorColor: Colors.white,
+                  cursorColor: inverseColor(),
                   cursorWidth: 2.0,
                   textInputAction: TextInputAction.newline,
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.all(15.0),
                     border: InputBorder.none,
                     hintText: 'Knotes',
-                    hintStyle: ct.contentHint,
+                    hintStyle: (color == Colors.black)
+                        ? ct.lightContentHint
+                        : ct.darkContentHint,
                     focusedBorder: InputBorder.none,
                   ),
-                  style: ct.content,
+                  style: (color == Colors.white)
+                      ? ct.lightContent
+                      : ct.darkContent,
                   maxLines: null,
                   autofocus: false,
                 ),
@@ -141,44 +168,49 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.white,
+          backgroundColor: inverseColor(),
           elevation: 10.0,
           heroTag: 'floating',
-          onPressed: () async {
-            var now = DateTime.now();
-
-            id = now.millisecondsSinceEpoch.toString();
-            title = _titleController.text;
-            content = _contentController.text;
-
-            if (title.isEmpty && content.isEmpty) {
-              Navigator.pop(context);
-              return;
-            }
-            knoteModel = new KnoteModel(
-              id: id,
-              title: title,
-              content: content,
-            );
-            await _knotesProvider.addKnote(knoteModel);
-            _titleController.clear();
-            _contentController.clear();
-            // Navigator.push(
-            //   context,
-            //   PageTransition(
-            //     type: PageTransitionType.rippleRightUp,
-            //     duration: Duration(milliseconds: 400),
-            //     child: HomeScreen(),
-            //   ),
-            // );
-            Navigator.pop(context);
+          onPressed: () {
+            onClick();
           },
           child: Icon(
             Icons.save,
-            color: Colors.black,
+            color: color,
           ),
         ),
       ),
     );
+  }
+
+  onClick() async {
+    var now = DateTime.now();
+
+    id = now.millisecondsSinceEpoch.toString();
+    title = _titleController.text;
+    content = _contentController.text;
+
+    if (title.isEmpty && content.isEmpty) {
+      Navigator.pop(context);
+      return;
+    }
+    knoteModel = new KnoteModel(
+      id: id,
+      title: title,
+      content: content,
+      isStarred: (_starKnote) ? 1 : 0,
+    );
+    await _knotesProvider.addKnote(knoteModel);
+    _titleController.clear();
+    _contentController.clear();
+    // Navigator.push(
+    //   context,
+    //   PageTransition(
+    //     type: PageTransitionType.rippleRightUp,
+    //     duration: Duration(milliseconds: 400),
+    //     child: HomeScreen(),
+    //   ),
+    // );
+    Navigator.pop(context);
   }
 }

@@ -52,7 +52,7 @@ ThemeData lightThemeData = ThemeData(
       color: Colors.black,
     ),
     color: Colors.white,
-    elevation: 3.0,
+    elevation: 0.0,
     textTheme: TextTheme(
       title: TextStyle(
         color: Colors.black87,

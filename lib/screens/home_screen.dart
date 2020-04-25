@@ -1,25 +1,13 @@
+import 'package:expandable_bottom_bar/expandable_bottom_bar.dart';
+import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/material.dart';
-import 'package:knotes/components/providers/LocalDBKnotesProvider.dart';
-import 'package:knotes/modelClasses/LocalDBKnotesModel.dart';
-import 'package:knotes/screens/modules/KnotesGridView.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import 'KnotesGridView/KnotesGridView.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<LocalDBKnotesProvider>(
-      builder: (context, _knotesProvider, child) {
-        if (_knotesProvider.knoteStatus == LocalKnotesStatus.Initialising)
-          return Center(
-            child: Text("Initialising"),
-          );
-        else if (_knotesProvider.knoteStatus ==
-            LocalKnotesStatus.KnotesAvailable)
-          return KnotesGridView(_knotesProvider.knotes);
-        else
-          return KnotesGridView(_knotesProvider.knotes);
-      },
-    );
+    return FeatureDiscovery(
+        child: DefaultBottomBarController(child: KnotesGridView()));
   }
 }

@@ -9,13 +9,14 @@ class DatabaseCreator {
   static const id = 'id';
   static const title = 'title';
   static const content = 'content';
-  static const timestamp = 'timestamp';
+  static const isStarred = 'isStarred';
 
   Future<void> createKnotesTable(Database db) async {
     final todoSql = '''CREATE TABLE IF NOT EXISTS $knotes_table (
       $id TEXT PRIMARY KEY,
       $title TEXT,
-      $content TEXT
+      $content TEXT,
+      $isStarred INTEGER
     )''';
 
     final tempSql = '''CREATE TABLE IF NOT EXISTS $temp_table (

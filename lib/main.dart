@@ -1,10 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:knotes/components/providers/LocalDBKnotesProvider.dart';
 import 'package:knotes/screens/home_screen.dart';
 import 'package:provider/provider.dart';
 import 'components/providers/UserProvider.dart';
-import 'components/repositories/database_creator.dart';
+
+import 'package:flutter/scheduler.dart';
 
 import 'components/repositories/theme_repository/GlobalThemeData.dart'
     as globalThemeData;
@@ -12,8 +12,7 @@ import 'components/repositories/theme_repository/GlobalThemeData.dart'
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Provider.debugCheckInvalidValueType = null;
-  await Firestore.instance.enablePersistence(true);
-  await DatabaseCreator().initDatabase();
+  timeDilation = 1.0;
   runApp(
     MyApp(),
   );
@@ -22,21 +21,21 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Knotes',
-      debugShowCheckedModeBanner: false,
-      theme: globalThemeData.lightThemeData,
-      darkTheme: globalThemeData.darkThemeData,
-      home: MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(
-            value: UserProvider.instance(),
-          ),
-          ChangeNotifierProvider.value(
-            value: LocalDBKnotesProvider(),
-          ),
-        ],
-        child: HomeScreen(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(
+          value: UserProvider.instance(),
+        ),
+        ChangeNotifierProvider.value(
+          value: LocalDBKnotesProvider(),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'Knotes',
+        debugShowCheckedModeBanner: false,
+        theme: globalThemeData.lightThemeData,
+        darkTheme: globalThemeData.darkThemeData,
+        home: HomeScreen(),
       ),
     );
   }

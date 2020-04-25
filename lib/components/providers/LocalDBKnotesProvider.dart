@@ -1,209 +1,174 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:knotes/components/repositories/RepositoryServiceKnote.dart';
 import 'package:knotes/components/repositories/database_creator.dart';
 import 'package:knotes/modelClasses/LocalDBKnotesModel.dart';
 import 'package:knotes/modelClasses/knote_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqlite_api.dart';
 
 class LocalDBKnotesProvider with ChangeNotifier {
+  List<KnoteModel> _knotes = [];
+
+  List<KnoteModel> _starredKnotes = [];
+  List<KnoteModel> _nonStarredKnotes = [];
+  List<String> _selectedKnotes = [];
+
+  bool _selectionMode = false;
+
   LocalKnotesStatus _knotesStatus = LocalKnotesStatus.Unintialised;
 
-  FirebaseUser _user;
+  LocalDBKnotesProvider() {
+    initDB();
+  }
 
-  bool _autoSync = false;
+  List<KnoteModel> get knotes => _knotes;
+  List<KnoteModel> get nonStarredKnotes => _nonStarredKnotes;
+  List<KnoteModel> get starredKontes => _starredKnotes;
+  List<String> get selectedKnotes => _selectedKnotes;
 
-  List<KnoteModel> _knotes = List<KnoteModel>();
-  KnoteModel _singleKnote = KnoteModel();
-
-  KnoteModel _tempKnote = KnoteModel();
-
-  Firestore databaseReference = Firestore.instance;
+  bool get selectionMode => _selectionMode;
 
   LocalKnotesStatus get knoteStatus => _knotesStatus;
-  bool get autoSync => _autoSync;
 
-  List<KnoteModel> get knotes {
-    return [..._knotes];
+  initDB() async {
+    await DatabaseCreator().initDatabase();
+    init();
   }
 
-  KnoteModel get tempKnote => _tempKnote;
-
-  KnoteModel get singleKnote => _singleKnote;
-
-  LocalDBKnotesProvider() {
-    getAllKnotes();
-    getUserSettings();
+  _addKnoteToList(KnoteModel model) {
+    if (model.isStarred == 1)
+      _starredKnotes.add(model);
+    else
+      _nonStarredKnotes.add(model);
+    notifyListeners();
   }
 
-  Future<void> getUserSettings() async {
-    SharedPreferences _preferences = await SharedPreferences.getInstance();
-    if (_preferences.containsKey('autoSync')) {
-      print("Contains");
-      _autoSync = _preferences.getBool('autoSync');
+  _updateKnote(KnoteModel model) {
+    int index;
+    if (model.isStarred == 1)
+      index = _starredKnotes
+          .indexWhere((value) => (value.id == model.id) ? true : false);
+    else
+      index = _nonStarredKnotes
+          .indexWhere((value) => (value.id == model.id) ? true : false);
+    //Have to write code for updating Knote
+    if (_knotes.isNotEmpty) _knotes[index] = model;
+  }
+
+  _toggleStar(KnoteModel model) {
+    if (model.isStarred == 0) {
+      _nonStarredKnotes.removeWhere((value) {
+        if (value.id == model.id)
+          return true;
+        else
+          return false;
+      });
+      _starredKnotes.add(model);
     } else {
-      _autoSync = false;
-      _preferences.setBool('autoSync', false);
+      _starredKnotes.removeWhere((value) {
+        if (value.id == model.id)
+          return true;
+        else
+          return false;
+      });
+      _nonStarredKnotes.add(model);
     }
+    print(model.title + ' ' + model.isStarred.toString());
+    notifyListeners();
+    // print('Starred Knote : ' + _starredKnotes[0].title);
+  }
+
+  addToSelectedKnotes({String id}) {
+    _selectedKnotes.add(id);
+    changeSelection(enable: true);
+  }
+
+  removeFromSelectedKnotes({String id}) {
+    _selectedKnotes.remove(id);
+  }
+
+  clearSelectedKnotes() {
+    _selectedKnotes.clear();
+    changeSelection(enable: false);
     notifyListeners();
   }
 
-  toggle(bool value) {
-    _autoSync = value;
+  changeSelection({bool enable}) {
+    _selectionMode = enable;
+    if (!_selectionMode) _selectedKnotes.clear();
     notifyListeners();
   }
 
-  Future<void> getAllKnotes() async {
-    _knotesStatus = LocalKnotesStatus.Initialising;
+  Future<void> init() async {
+    _knotesStatus = LocalKnotesStatus.Refreshing;
     notifyListeners();
-    final sql = '''select * from ${DatabaseCreator.knotes_table}''';
-
-    final data = await db.rawQuery(sql);
-
-    List<KnoteModel> knotes = List();
-    if (data.length == 0) {
+    _knotes.clear();
+    _starredKnotes.clear();
+    _nonStarredKnotes.clear();
+    _knotes = await RepositoryServiceKnote.getAllKnotes();
+    if (_knotes.isEmpty)
       _knotesStatus = LocalKnotesStatus.NoKnotesAvailable;
-      notifyListeners();
-    } else {
+    else {
+      _knotes.forEach((model) {
+        if (model.isStarred == 1)
+          _starredKnotes.add(model);
+        else
+          _nonStarredKnotes.add(model);
+      });
       _knotesStatus = LocalKnotesStatus.KnotesAvailable;
-      notifyListeners();
+    }
+    notifyListeners();
+  }
 
-      KnoteModel knote;
+  refreshStatus() async {
+    _knotesStatus = LocalKnotesStatus.Refreshing;
+    notifyListeners();
+    if (_knotes.isEmpty)
+      _knotesStatus = LocalKnotesStatus.NoKnotesAvailable;
+    else
+      _knotesStatus = LocalKnotesStatus.KnotesAvailable;
+    notifyListeners();
+  }
 
-      for (final node in data) {
-        knote = KnoteModel.fromJSON(node);
-        knotes.add(knote);
+  addKnote(KnoteModel model) async {
+    await RepositoryServiceKnote.addKnote(model);
+    // _addKnoteToList(model);
+    // print(_knotes[0].toJSON());
+    // notifyListeners();
+    // refreshStatus();
+    init();
+  }
+
+  Future<int> toggleKnoteStar(KnoteModel model) async {
+    int val = await RepositoryServiceKnote.starKnote(model);
+    // _toggleStar(model);
+    init();
+    // refreshStatus();
+    // notifyListeners();
+    return val;
+  }
+
+  Future<int> updateKnote(KnoteModel model) async {
+    int val = await RepositoryServiceKnote.updateKnote(model);
+    _updateKnote(model);
+    print('The value is ${val.toString()}');
+    notifyListeners();
+    // init();
+    return val;
+  }
+
+  deleteKnote(List<String> ids) async {
+    int val = await RepositoryServiceKnote.deleteKnote(ids);
+    print('Deletion : ${val.toString()}');
+    init();
+  }
+
+  Future<List<KnoteModel>> searchForKnotes (String keywords) async {
+    List<KnoteModel> searchResults = [];
+
+    for(KnoteModel model in _knotes) {
+      if(model.title.contains('$keywords') || model.content.contains('$keywords')) {
+        searchResults.add(model);
       }
-      _knotes = knotes;
     }
-    notifyListeners();
-  }
-
-  Future<KnoteModel> getKnotesFromCloud() async {}
-
-  Future<void> getKnote(String id) async {
-    final sql =
-        '''select * from ${DatabaseCreator.knotes_table} where ${DatabaseCreator.id} == $id''';
-
-    final data = await db.rawQuery(sql);
-
-    final knote = KnoteModel.fromJSON(data[0]);
-
-    _singleKnote = knote;
-    notifyListeners();
-  }
-
-  Future<void> addTempData(KnoteModel knoteModel) async {
-    final sql = '''insert into ${DatabaseCreator.temp_table} (
-      ${DatabaseCreator.title},
-      ${DatabaseCreator.content}
-    )
-    values(
-      ?,?
-    )''';
-
-    List<dynamic> params = [knoteModel.title, knoteModel.content];
-
-    final sql2 = '''DELETE FROM ${DatabaseCreator.temp_table}''';
-
-    Batch batch = db.batch();
-    batch.execute(sql2);
-    batch.execute(sql, params);
-
-    await batch.commit();
-
-    _tempKnote = knoteModel;
-    notifyListeners();
-  }
-
-  Future<void> getTempData() async {
-    final sql = '''SELECT * FROM ${DatabaseCreator.temp_table}''';
-
-    final data = await db.rawQuery(sql);
-    KnoteModel knoteModel;
-    if (data.isEmpty) {
-      knoteModel = KnoteModel(
-        id: "",
-        title: "",
-        content: "",
-      );
-      return knoteModel;
-    }
-    knoteModel = KnoteModel.fromJSON(data[0]);
-
-    print(knoteModel.title + " " + knoteModel.content);
-
-    return knoteModel;
-  }
-
-  Future<void> addKnote(KnoteModel knoteModel) async {
-    final sql = '''insert into ${DatabaseCreator.knotes_table} (
-      '${DatabaseCreator.id}',
-      '${DatabaseCreator.title}',
-      '${DatabaseCreator.content}'
-    ) 
-    values(?,?,?)''';
-    List<dynamic> params = [
-      knoteModel.id,
-      knoteModel.title,
-      knoteModel.content
-    ];
-    final sql2 = '''DELETE FROM ${DatabaseCreator.temp_table}''';
-
-    Batch batch = db.batch();
-    batch.execute(sql, params);
-    batch.execute(sql2);
-
-    await batch.commit();
-
-    _tempKnote = knoteModel;
-    notifyListeners();
-  }
-
-  Future<void> updateKnote(KnoteModel knoteModel) async {
-    final sql =
-        '''update ${DatabaseCreator.knotes_table} set ${DatabaseCreator.title} = ? and ${DatabaseCreator.content} = ? id = ?''';
-
-    List<dynamic> params = [
-      knoteModel.title,
-      knoteModel.content,
-      knoteModel.id
-    ];
-
-    await db.rawUpdate(sql, params);
-  }
-
-  Future<void> updateTitleKnote(String id, String value) async {
-    final sql =
-        '''update ${DatabaseCreator.knotes_table} set ${DatabaseCreator.title} = ? where id = ?''';
-
-    List<dynamic> params = [value, id];
-
-    await db.rawUpdate(sql, params);
-
-    print("Success!");
-  }
-
-  Future<void> updateContentKnote(String id, String value) async {
-    final sql =
-        '''update ${DatabaseCreator.knotes_table} set ${DatabaseCreator.content} = ? where id = ?''';
-
-    List<dynamic> params = [value, id];
-
-    await db.rawUpdate(sql, params);
-    print("Success!");
-  }
-
-  Future<void> deleteKnote(List<String> id) async {
-    String sql = "";
-    for (String index in id) {
-      sql =
-          '''delete from ${DatabaseCreator.knotes_table} where ${DatabaseCreator.id} = ?''';
-      List<dynamic> params = [index];
-
-      await db.rawDelete(sql, params).then((t) => print("Deleted $index"));
-    }
-    getAllKnotes();
+    return searchResults;
   }
 }
