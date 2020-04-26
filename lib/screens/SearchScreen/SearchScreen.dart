@@ -40,8 +40,11 @@ class SearchScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     PageTransition(
-                        child: SingleKnote(model),
-                        type: PageTransitionType.slideParallaxUp),
+                      child: SingleKnote(model),
+                      duration: Duration(milliseconds: 600),
+                      curve: Curves.easeInOut,
+                      type: PageTransitionType.slideInDown,
+                    ),
                   );
                 },
                 child: Card(child: SingleCard(knote: model)),

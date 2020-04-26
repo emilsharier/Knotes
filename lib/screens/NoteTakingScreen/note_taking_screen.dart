@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:knotes/components/providers/LocalDBKnotesProvider.dart';
 import 'package:knotes/components/repositories/RepositoryServiceKnote.dart';
@@ -108,7 +109,7 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
           ),
           actions: <Widget>[
             IconButton(
-              icon: (_starKnote) ? Icon(Icons.star) : Icon(Icons.star_border),
+              icon: (_starKnote) ? Icon(MaterialCommunityIcons.pin) : Icon(MaterialCommunityIcons.pin_outline),
               onPressed: () {
                 setState(() {
                   _starKnote = !_starKnote;

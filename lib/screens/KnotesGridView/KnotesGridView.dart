@@ -100,8 +100,11 @@ class _KnotesGridViewState extends State<KnotesGridView> {
                   Navigator.push(
                     context,
                     PageTransition(
-                        child: SearchScreen(),
-                        type: PageTransitionType.rippleRightDown),
+                      child: SearchScreen(),
+                      duration: Duration(milliseconds: 400),
+                      curve: Curves.easeInOut,
+                      type: PageTransitionType.rippleRightDown,
+                    ),
                   );
                 },
               ),

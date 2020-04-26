@@ -82,6 +82,8 @@ class _GetGridTileState extends State<GetGridTile>
               context,
               PageTransition(
                 child: SingleKnote(knote),
+                duration: Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
                 type: PageTransitionType.slideInUp,
               ),
             );

@@ -8,7 +8,7 @@
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="knotes"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/icon">
         <activity
             android:name="com.emil_codes.knotes.MainActivity"
             android:launchMode="singleTop"

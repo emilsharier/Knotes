@@ -161,11 +161,12 @@ class LocalDBKnotesProvider with ChangeNotifier {
     init();
   }
 
-  Future<List<KnoteModel>> searchForKnotes (String keywords) async {
+  Future<List<KnoteModel>> searchForKnotes(String keywords) async {
     List<KnoteModel> searchResults = [];
 
-    for(KnoteModel model in _knotes) {
-      if(model.title.contains('$keywords') || model.content.contains('$keywords')) {
+    for (KnoteModel model in _knotes) {
+      if (model.title.toLowerCase().contains('${keywords.toLowerCase()}') ||
+          model.content.toLowerCase().contains('${keywords.toLowerCase()}')) {
         searchResults.add(model);
       }
     }
