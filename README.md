@@ -1,10 +1,10 @@
 # Knotes - Minimal knote taking
 
-![Knotes](https://raw.githubusercontent.com/emilsharier/Knotes/master/android/app/src/main/res/mipmap-xhdpi/icon.png)
+![Knotes](https://raw.githubusercontent.com/emilsharier/Knotes/master/assets/screenshots/banner_graphic.jpg)
 
 ## Download
 
-[Check out Knotes](https://play.google.com/store/apps/details?id=com.emil_codes.knotes "Knotes - Minimal Note Taking")
+[<img src="https://raw.githubusercontent.com/emilsharier/Knotes/master/android/app/src/main/res/mipmap-hdpi/icon.png">](https://play.google.com/store/apps/details?id=com.emil_codes.knotes)
 
 ## About Knotes
 
@@ -15,4 +15,8 @@ Knotes doesn't require any permission to run on your device. Everything is local
 
 This repository is completely open source. To contribute, fork the repository and open a pull request.
 
-### Some Screenshots
+| Tables        | Are           | Cool  |
+| ------------- |:-------------:| -----:|
+| col 3 is      | right-aligned | $1600 |
+| col 2 is      | centered      |   $12 |
+| zebra stripes | are neat      |    $1 |
