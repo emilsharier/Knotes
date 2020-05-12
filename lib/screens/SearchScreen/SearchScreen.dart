@@ -1,13 +1,9 @@
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flappy_search_bar/scaled_tile.dart';
-import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_page_transition/flutter_page_transition.dart';
-import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:knotes/GlobalWidgets/GetGrid/LocalWidgets/SingleCard.dart';
 import 'package:knotes/components/providers/LocalDBKnotesProvider.dart';
-import 'package:knotes/components/repositories/theme_repository/textField_custom_theme.dart'
-    as ct;
 import 'package:knotes/modelClasses/knote_model.dart';
 import 'package:knotes/screens/SingleKnote/single_knote.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +18,7 @@ class SearchScreen extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: SearchBar<KnoteModel>(
             onSearch: provider.searchForKnotes,
-            cancellationText: Text(
+            cancellationWidget: Text(
               'Clear',
               style: TextStyle(
                 fontFamily: 'NexaBold',
