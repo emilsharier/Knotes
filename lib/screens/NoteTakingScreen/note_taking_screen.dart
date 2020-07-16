@@ -31,8 +31,6 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
 
   LocalDBKnotesProvider _knotesProvider;
 
-  Color color;
-
   @override
   void initState() {
     _initialise();
@@ -74,16 +72,10 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
     _contentFocus.dispose();
   }
 
-  inverseColor() {
-    return (color == Colors.white) ? Colors.black : Colors.white;
-  }
-
   @override
   Widget build(BuildContext context) {
     _knotesProvider = Provider.of<LocalDBKnotesProvider>(context);
-    color = (MediaQuery.of(context).platformBrightness == Brightness.dark)
-        ? Colors.black
-        : Colors.white;
+
     return WillPopScope(
       onWillPop: () async {
         title = (_titleController.text == null) ? "" : _titleController.text;
@@ -97,19 +89,15 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
         );
 
         RepositoryServiceKnote.addTempData(knoteModel);
-        // Navigator.pop(context);
-
         return true;
       },
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: color,
-          iconTheme: IconThemeData(
-            color: inverseColor(),
-          ),
           actions: <Widget>[
             IconButton(
-              icon: (_starKnote) ? Icon(MaterialCommunityIcons.pin) : Icon(MaterialCommunityIcons.pin_outline),
+              icon: (_starKnote)
+                  ? Icon(MaterialCommunityIcons.pin)
+                  : Icon(MaterialCommunityIcons.pin_outline),
               onPressed: () {
                 setState(() {
                   _starKnote = !_starKnote;
@@ -118,7 +106,6 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
             ),
           ],
         ),
-        backgroundColor: color,
         body: SingleChildScrollView(
           physics: BouncingScrollPhysics(),
           child: Form(
@@ -129,38 +116,26 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
                   controller: _titleController,
                   focusNode: _titleFocus,
                   cursorWidth: 3.0,
-                  cursorColor: inverseColor(),
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.all(15.0),
                     hintText: 'Title',
-                    hintStyle: (color == Colors.white)
-                        ? ct.darkTitleHint
-                        : ct.lightTitleHint,
                     focusedBorder: InputBorder.none,
                   ),
-                  style: (color == Colors.white) ? ct.lightTitle : ct.darkTitle,
                   maxLines: null,
                   autofocus: false,
                 ),
                 TextField(
                   controller: _contentController,
                   focusNode: _contentFocus,
-                  cursorColor: inverseColor(),
                   cursorWidth: 2.0,
                   textInputAction: TextInputAction.newline,
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.all(15.0),
                     border: InputBorder.none,
                     hintText: 'Knotes',
-                    hintStyle: (color == Colors.black)
-                        ? ct.lightContentHint
-                        : ct.darkContentHint,
                     focusedBorder: InputBorder.none,
                   ),
-                  style: (color == Colors.white)
-                      ? ct.lightContent
-                      : ct.darkContent,
                   maxLines: null,
                   autofocus: false,
                 ),
@@ -169,7 +144,6 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          backgroundColor: inverseColor(),
           elevation: 10.0,
           heroTag: 'floating',
           onPressed: () {
@@ -177,7 +151,6 @@ class _NoteTakingScreenState extends State<NoteTakingScreen> {
           },
           child: Icon(
             Icons.save,
-            color: color,
           ),
         ),
       ),

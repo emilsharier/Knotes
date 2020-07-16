@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:knotes/Routes/routes.dart';
+import 'package:knotes/components/providers/DynamicTheme.dart';
 import 'package:knotes/components/providers/LocalDBKnotesProvider.dart';
-import 'package:knotes/screens/home_screen.dart';
 import 'package:provider/provider.dart';
-import 'components/providers/UserProvider.dart';
 
 import 'package:flutter/scheduler.dart';
 
+import 'components/providers/UserProvider.dart';
 import 'components/repositories/theme_repository/GlobalThemeData.dart'
     as globalThemeData;
 
@@ -24,18 +25,25 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(
-          value: UserProvider.instance(),
+          value: DynamicTheme(),
+        ),
+        ChangeNotifierProvider.value(
+          value: UserProvider(),
         ),
         ChangeNotifierProvider.value(
           value: LocalDBKnotesProvider(),
         ),
       ],
-      child: MaterialApp(
-        title: 'Knotes',
-        debugShowCheckedModeBanner: false,
-        theme: globalThemeData.lightThemeData,
-        darkTheme: globalThemeData.darkThemeData,
-        home: HomeScreen(),
+      child: Consumer<DynamicTheme>(
+        builder: (context, value, child) {
+          return MaterialApp(
+            title: 'Knotes',
+            debugShowCheckedModeBanner: false,
+            initialRoute: Router.homePage,
+            theme: value.fetchMyTheme(),
+            onGenerateRoute: Router.generateRoute,
+          );
+        },
       ),
     );
   }

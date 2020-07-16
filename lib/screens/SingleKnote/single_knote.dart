@@ -54,96 +54,81 @@ class _SingleKnoteState extends State<SingleKnote> {
   @override
   Widget build(BuildContext context) {
     provider = Provider.of<LocalDBKnotesProvider>(context);
-    return Scaffold(
-      // backgroundColor: Color.fromRGBO(230, 230, 230, 1.0),
-      appBar: AppBar(
-        actions: <Widget>[
-          IconButton(
-            icon: (_starKnote)
-                ? Icon(MaterialCommunityIcons.pin)
-                : Icon(MaterialCommunityIcons.pin_outline),
-            onPressed: () {
-              setState(() {
-                _starKnote = !_starKnote;
-                provider.toggleKnoteStar(widget.knoteModel);
-              });
-            },
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
-        child: Container(
-          // margin: MediaQuery.of(context).padding,
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              children: <Widget>[
-                TextFormField(
-                  controller: _titleController,
-                  onSaved: (value) => model.title = value,
-                  cursorWidth: 3.0,
-                  cursorColor: Colors.black,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(15.0),
-                    hintText: 'Title',
-                    hintStyle: ct.titleHint_singleKnote,
-                    focusedBorder: InputBorder.none,
+    return WillPopScope(
+      // onWillPop: () async ,
+      child: Scaffold(
+        appBar: AppBar(
+          actions: <Widget>[
+            IconButton(
+              icon: (_starKnote)
+                  ? Icon(MaterialCommunityIcons.pin)
+                  : Icon(MaterialCommunityIcons.pin_outline),
+              onPressed: () {
+                setState(() {
+                  _starKnote = !_starKnote;
+                  provider.toggleKnoteStar(widget.knoteModel);
+                });
+              },
+            ),
+          ],
+        ),
+        body: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
+          child: Container(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: <Widget>[
+                  TextFormField(
+                    controller: _titleController,
+                    onSaved: (value) => model.title = value,
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(15.0),
+                      hintText: 'Title',
+                    ),
+                    maxLines: null,
+                    onChanged: (value) => _displayFloatingButtonWidget(),
                   ),
-                  style: (MediaQuery.of(context).platformBrightness ==
-                          Brightness.dark)
-                      ? ct.title_singleKnote_Dark
-                      : ct.title_singleKnote,
-                  maxLines: null,
-                  onChanged: (value) => _displayFloatingButtonWidget(),
-                ),
-                TextFormField(
-                  controller: _contentController,
-                  onSaved: (value) => model.content = value,
-                  cursorColor: Colors.black,
-                  cursorWidth: 2.0,
-                  autofocus: true,
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.all(15.0),
-                    border: InputBorder.none,
-                    hintText: 'Knotes',
-                    hintStyle: ct.contentHint_singleKnote,
-                    focusedBorder: InputBorder.none,
+                  TextFormField(
+                    controller: _contentController,
+                    onSaved: (value) => model.content = value,
+                    cursorColor: Colors.black,
+                    cursorWidth: 2.0,
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(15.0),
+                      hintText: 'Knotes',
+                    ),
+                    maxLines: null,
+                    onChanged: (value) => _displayFloatingButtonWidget(),
                   ),
-                  style: (MediaQuery.of(context).platformBrightness ==
-                          Brightness.dark)
-                      ? ct.content_singleKnote_Dark
-                      : ct.content_singleKnote,
-                  maxLines: null,
-                  onChanged: (value) => _displayFloatingButtonWidget(),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      floatingActionButton: _displayFloatingButton
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                FloatingActionButton(
-                  child: Icon(
-                    Icons.arrow_back_ios,
-                    size: 20.0,
+        floatingActionButton: _displayFloatingButton
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  FloatingActionButton(
+                    child: Icon(
+                      Icons.save,
+                      size: 20.0,
+                    ),
+                    onPressed: () {
+                      _update();
+                    },
                   ),
-                  onPressed: () {
-                    _update();
-                  },
-                ),
-                SizedBox(
-                  height: 10.0,
-                ),
-                //sFloatingActionButton(onPressed: null),
-              ],
-            )
-          : null,
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  //sFloatingActionButton(onPressed: null),
+                ],
+              )
+            : null,
+      ),
     );
   }
 

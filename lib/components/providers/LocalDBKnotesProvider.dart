@@ -6,7 +6,6 @@ import 'package:knotes/modelClasses/knote_model.dart';
 
 class LocalDBKnotesProvider with ChangeNotifier {
   List<KnoteModel> _knotes = [];
-
   List<KnoteModel> _starredKnotes = [];
   List<KnoteModel> _nonStarredKnotes = [];
   List<String> _selectedKnotes = [];
@@ -33,14 +32,6 @@ class LocalDBKnotesProvider with ChangeNotifier {
     init();
   }
 
-  _addKnoteToList(KnoteModel model) {
-    if (model.isStarred == 1)
-      _starredKnotes.add(model);
-    else
-      _nonStarredKnotes.add(model);
-    notifyListeners();
-  }
-
   _updateKnote(KnoteModel model) {
     int index;
     if (model.isStarred == 1)
@@ -51,29 +42,6 @@ class LocalDBKnotesProvider with ChangeNotifier {
           .indexWhere((value) => (value.id == model.id) ? true : false);
     //Have to write code for updating Knote
     if (_knotes.isNotEmpty) _knotes[index] = model;
-  }
-
-  _toggleStar(KnoteModel model) {
-    if (model.isStarred == 0) {
-      _nonStarredKnotes.removeWhere((value) {
-        if (value.id == model.id)
-          return true;
-        else
-          return false;
-      });
-      _starredKnotes.add(model);
-    } else {
-      _starredKnotes.removeWhere((value) {
-        if (value.id == model.id)
-          return true;
-        else
-          return false;
-      });
-      _nonStarredKnotes.add(model);
-    }
-    print(model.title + ' ' + model.isStarred.toString());
-    notifyListeners();
-    // print('Starred Knote : ' + _starredKnotes[0].title);
   }
 
   addToSelectedKnotes({String id}) {

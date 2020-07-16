@@ -7,6 +7,7 @@ class PrefKeys {
   static String autoSyncInterval = 'Auto_sync_interval';
   static String isLoggedIn = 'Is_logged_in';
   static String autoSync = 'Auto_sync';
-
   static String isFeatureDiscoveryCompleted = 'Feature_Discovery';
+
+  static String currentTheme = 'current_theme';
 }
